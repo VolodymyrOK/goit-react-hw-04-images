@@ -12,7 +12,7 @@ export const Modal = ({ onClose, children }) => {
     document.body.style.maxHeight = '100vh';
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflowY = 'auto';
+      document.body.removeAttribute('style');
     };
   });
 
