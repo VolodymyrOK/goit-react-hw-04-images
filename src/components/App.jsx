@@ -8,7 +8,6 @@ import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
 import { MessageToast } from './Messages/Messages';
 import { ImageModal } from './Modal/Modal.styled';
-
 import { ImPointUp } from 'react-icons/im';
 import { Modal } from './Modal/Modal';
 

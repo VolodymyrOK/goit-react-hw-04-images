@@ -1,4 +1,4 @@
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { ImageGalleryLi, ImageGalleryUl } from './ImageGallery.styled';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
@@ -20,8 +20,8 @@ export const ImageGallery = ({ props, getLargeImgUrl, toggleModal }) => {
   );
 };
 
-// ImageGallery.propTypes = {
-//   props: PropTypes.object,
-//   getLargeImgUrl: PropTypes.func,
-//   toggleModal: PropTypes.func,
-// };
+ImageGallery.propTypes = {
+  props: PropTypes.array,
+  getLargeImgUrl: PropTypes.func,
+  toggleModal: PropTypes.func,
+};

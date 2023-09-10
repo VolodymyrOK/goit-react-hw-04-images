@@ -1,4 +1,4 @@
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { ImageGalleryItemIMG } from './ImageGalleryItem.styled';
 
 export const ImageGalleryItem = ({
@@ -21,14 +21,8 @@ export const ImageGalleryItem = ({
   );
 };
 
-// ImageGalleryItem.propType = {
-//   item: PropTypes.arrayOf(
-//     PropTypes.shape({
-//       webformatURL: PropTypes.string,
-//       largeImageURL: PropTypes.string,
-//       tags: PropTypes.string,
-//     })
-//   ),
-//   getLargeImgUrl: PropTypes.func,
-//   toggleModal: PropTypes.func,
-// };
+ImageGalleryItem.propTypes = {
+  item: PropTypes.object,
+  getLargeImgUrl: PropTypes.func,
+  toggleModal: PropTypes.func,
+};
