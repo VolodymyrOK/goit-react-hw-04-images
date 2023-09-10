@@ -1,6 +1,9 @@
 import styled from 'styled-components';
 
 export const LoaderStile = styled.div`
-  text-align: center;
-  margin-top: 20px;
+  position: fixed;
+  z-index: 1000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;

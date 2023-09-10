@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import { animateScroll as scroll } from 'react-scroll';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -7,144 +7,123 @@ import { ButtonUp, CountPages, Layout } from './App.styled';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
 import { MessageToast } from './Messages/Messages';
-import Modal from './Modal/Modal';
 import { ImageModal } from './Modal/Modal.styled';
 
 import { ImPointUp } from 'react-icons/im';
+import { Modal } from './Modal/Modal';
 
-export class App extends Component {
-  state = {
-    query: '',
-    loading: false,
-    page: 1,
-    per_page: 12,
-    imgHits: [],
-    totalHits: 0,
-    showModal: false,
-    largeImgURL: '',
-    largeTags: '',
-    isScrollUp: false,
-  };
+export const App = () => {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [imgHits, setImgHits] = useState([]);
+  const [totalHits, setTotalHits] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [largeImgURL, setLargeImgURL] = useState('');
+  const [largeTags, setLargeTags] = useState('');
+  const [isScrollUp, setIsScrollUp] = useState(false);
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { page, query } = this.state;
-    if (prevState.query !== query || prevState.page !== page) {
+  useEffect(() => {
+    if (!query) return;
+    async function getDataImage() {
       try {
-        this.setState({ loading: true });
+        setLoading(true);
         const dataFetch = await fetchData(query, page);
 
-        if (dataFetch.totalHits === 0) {
-          MessageToast('errorfound', 'Nothing found');
-          return;
-        }
+        if (dataFetch.totalHits === 0)
+          return MessageToast('errorfound', 'Nothing found');
 
-        this.setState(prevState => ({
-          imgHits: [...prevState.imgHits, ...dataFetch.hits],
-          totalHits: dataFetch.totalHits,
-        }));
-
-        if (
-          dataFetch.totalHits ===
-          prevState.imgHits.length + dataFetch.hits.length
-        )
-          MessageToast('foundok', `Search completed. There is nothing more.`);
-
-        if (prevState.query !== query)
-          MessageToast('foundok', `Found ${dataFetch.totalHits} images`);
+        setImgHits(prevImgHits => [...prevImgHits, ...dataFetch.hits]);
+        setTotalHits(dataFetch.totalHits);
       } catch (error) {
         MessageToast('errorloading', 'OOPS! There was an error!');
       } finally {
-        this.setState({ loading: false });
+        setLoading(false);
       }
     }
-  }
+    getDataImage();
+  }, [query, page]);
 
-  onloadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  useEffect(() => {
+    if (totalHits > 0) MessageToast('foundok', `Found ${totalHits} images`);
+  }, [totalHits]);
+
+  useEffect(() => {
+    if (imgHits.length === totalHits && totalHits !== 0)
+      MessageToast('foundok', `Search completed. There is nothing more.`);
+    if (imgHits.length > totalHits)
+      MessageToast(
+        'foundok',
+        `Search completed. The number of requested images has exceeded the maximum allowed.`
+      );
+  }, [imgHits.length, totalHits]);
+
+  const onloadMore = () => {
+    setPage(page + 1);
     scroll.scrollMore(500);
   };
 
-  handleFormSubmit = queryNew => {
-    this.setState({
-      query: queryNew,
-      imgHits: [],
-      page: 1,
-      totalHits: 0,
-    });
+  const handleFormSubmit = queryNew => {
+    setQuery(queryNew);
+    setImgHits([]);
+    setPage(1);
+    setTotalHits(0);
   };
 
-  onScrollUp = () => {
+  const onScrollUp = () => {
     scroll.scrollToTop();
-    this.setState({ isScrollUp: false });
+    setIsScrollUp(false);
   };
 
-  onScroll = () => {
+  const onScroll = () => {
     if (window.scrollY > 300) {
-      this.setState({ isScrollUp: true });
+      setIsScrollUp(true);
     } else {
-      this.setState({ isScrollUp: false });
+      setIsScrollUp(false);
     }
   };
 
-  getlargeImgURL = url => {
-    this.setState({
-      largeImgURL: url,
-    });
+  const getlargeImgURL = (url, tags) => {
+    setLargeImgURL(url);
+    setLargeTags(tags);
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  const toggleModal = () => {
+    setShowModal(!showModal);
   };
 
-  render() {
-    const {
-      loading,
-      imgHits,
-      totalHits,
-      showModal,
-      largeImgURL,
-      largeTags,
-      isScrollUp,
-    } = this.state;
+  return (
+    <Layout onWheel={onScroll}>
+      <Searchbar onSubmit={handleFormSubmit} />
+      {imgHits.length > 0 && (
+        <CountPages>{imgHits.length + '/' + totalHits}</CountPages>
+      )}
+      {loading && <Loader />}
 
-    return (
-      <Layout onWheel={this.onScroll}>
-        <Searchbar onSubmit={this.handleFormSubmit} />
-
-        {imgHits.length > 0 && (
-          <CountPages>{imgHits.length + '/' + totalHits}</CountPages>
-        )}
-
-        {loading && <Loader />}
-
-        {imgHits.length > 0 && (
-          <ImageGallery
-            props={this.state}
-            getLargeImgUrl={this.getlargeImgURL}
-            toggleModal={this.toggleModal}
+      {imgHits.length > 0 && (
+        <ImageGallery
+          props={imgHits}
+          getLargeImgUrl={getlargeImgURL}
+          toggleModal={toggleModal}
+        />
+      )}
+      {totalHits > imgHits.length && !loading && (
+        <Button onClick={onloadMore} />
+      )}
+      {isScrollUp && (
+        <ButtonUp type="button" onClick={onScrollUp}>
+          <ImPointUp />
+        </ButtonUp>
+      )}
+      {showModal && (
+        <Modal onClose={toggleModal}>
+          <ImageModal
+            src={largeImgURL}
+            alt={largeTags}
+            title="Press Esc to exit"
           />
-        )}
-
-        {totalHits !== imgHits.length && !loading && (
-          <Button onLoadMore={this.onloadMore} />
-        )}
-
-        {isScrollUp && (
-          <ButtonUp type="button" onClick={this.onScrollUp}>
-            <ImPointUp />
-          </ButtonUp>
-        )}
-
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <ImageModal
-              src={largeImgURL}
-              alt={largeTags}
-              title="Press Esc to exit"
-            />
-          </Modal>
-        )}
-      </Layout>
-    );
-  }
-}
+        </Modal>
+      )}
+    </Layout>
+  );
+};
