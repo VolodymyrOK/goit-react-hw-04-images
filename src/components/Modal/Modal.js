@@ -9,7 +9,6 @@ export const Modal = ({ onClose, children }) => {
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
     document.body.style.overflowY = 'hidden';
-    document.body.style.maxHeight = '100vh';
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.removeAttribute('style');

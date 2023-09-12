@@ -3,12 +3,11 @@ import { animateScroll as scroll } from 'react-scroll';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchData } from './Api/Api';
-import { ButtonUp, CountPages, Layout } from './App.styled';
+import { CountPages, Layout } from './App.styled';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
 import { MessageToast } from './Messages/Messages';
 import { ImageModal } from './Modal/Modal.styled';
-import { ImPointUp } from 'react-icons/im';
 import { Modal } from './Modal/Modal';
 
 export const App = () => {
@@ -20,7 +19,6 @@ export const App = () => {
   const [showModal, setShowModal] = useState(false);
   const [largeImgURL, setLargeImgURL] = useState('');
   const [largeTags, setLargeTags] = useState('');
-  const [isScrollUp, setIsScrollUp] = useState(false);
 
   useEffect(() => {
     if (!query) return;
@@ -69,19 +67,6 @@ export const App = () => {
     setTotalHits(0);
   };
 
-  const onScrollUp = () => {
-    scroll.scrollToTop();
-    setIsScrollUp(false);
-  };
-
-  const onScroll = () => {
-    if (window.scrollY > 300) {
-      setIsScrollUp(true);
-    } else {
-      setIsScrollUp(false);
-    }
-  };
-
   const getlargeImgURL = (url, tags) => {
     setLargeImgURL(url);
     setLargeTags(tags);
@@ -92,7 +77,7 @@ export const App = () => {
   };
 
   return (
-    <Layout onWheel={onScroll}>
+    <Layout>
       <Searchbar onSubmit={handleFormSubmit} />
       {imgHits.length > 0 && (
         <CountPages>{imgHits.length + '/' + totalHits}</CountPages>
@@ -106,14 +91,11 @@ export const App = () => {
           toggleModal={toggleModal}
         />
       )}
+
       {totalHits > imgHits.length && !loading && (
         <Button onClick={onloadMore} />
       )}
-      {isScrollUp && (
-        <ButtonUp type="button" onClick={onScrollUp}>
-          <ImPointUp />
-        </ButtonUp>
-      )}
+
       {showModal && (
         <Modal onClose={toggleModal}>
           <ImageModal
