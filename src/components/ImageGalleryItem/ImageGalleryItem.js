@@ -3,8 +3,7 @@ import { ImageGalleryItemIMG } from './ImageGalleryItem.styled';
 
 export const ImageGalleryItem = ({
   item: { webformatURL, largeImageURL, tags },
-  getLargeImgUrl,
-  toggleModal,
+  onImageClick,
 }) => {
   return (
     <>
@@ -13,8 +12,7 @@ export const ImageGalleryItem = ({
         alt={tags}
         loading="lazy"
         onClick={() => {
-          getLargeImgUrl(largeImageURL, tags);
-          toggleModal();
+          onImageClick({ src: largeImageURL, alt: tags });
         }}
       />
     </>
@@ -22,7 +20,11 @@ export const ImageGalleryItem = ({
 };
 
 ImageGalleryItem.propTypes = {
-  item: PropTypes.object,
+  item: PropTypes.shape({
+    webformatURL: PropTypes.string.isRequired,
+    largeImageURL: PropTypes.string.isRequired,
+    tags: PropTypes.string.isRequired,
+  }),
   getLargeImgUrl: PropTypes.func,
   toggleModal: PropTypes.func,
 };

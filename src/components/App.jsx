@@ -16,9 +16,7 @@ export const App = () => {
   const [page, setPage] = useState(1);
   const [imgHits, setImgHits] = useState([]);
   const [totalHits, setTotalHits] = useState(0);
-  const [showModal, setShowModal] = useState(false);
-  const [largeImgURL, setLargeImgURL] = useState('');
-  const [largeTags, setLargeTags] = useState('');
+  const [modalData, setModalData] = useState(null);
 
   useEffect(() => {
     if (!query) return;
@@ -29,6 +27,9 @@ export const App = () => {
 
         if (dataFetch.totalHits === 0)
           return MessageToast('errorfound', 'Nothing found');
+
+        if (page === 1)
+          MessageToast('foundok', `Found ${dataFetch.totalHits} images`);
 
         setImgHits(prevImgHits => [...prevImgHits, ...dataFetch.hits]);
         setTotalHits(dataFetch.totalHits);
@@ -42,10 +43,6 @@ export const App = () => {
   }, [query, page]);
 
   useEffect(() => {
-    if (totalHits > 0) MessageToast('foundok', `Found ${totalHits} images`);
-  }, [totalHits]);
-
-  useEffect(() => {
     if (imgHits.length === totalHits && totalHits !== 0)
       MessageToast('foundok', `Search completed. There is nothing more.`);
     if (imgHits.length > totalHits)
@@ -56,7 +53,7 @@ export const App = () => {
   }, [imgHits.length, totalHits]);
 
   const onloadMore = () => {
-    setPage(page + 1);
+    setPage(prev => prev + 1);
     scroll.scrollMore(500);
   };
 
@@ -67,13 +64,8 @@ export const App = () => {
     setTotalHits(0);
   };
 
-  const getlargeImgURL = (url, tags) => {
-    setLargeImgURL(url);
-    setLargeTags(tags);
-  };
-
-  const toggleModal = () => {
-    setShowModal(!showModal);
+  const getlargeImgURL = (modalData = null) => {
+    setModalData(modalData);
   };
 
   return (
@@ -85,22 +77,18 @@ export const App = () => {
       {loading && <Loader />}
 
       {imgHits.length > 0 && (
-        <ImageGallery
-          props={imgHits}
-          getLargeImgUrl={getlargeImgURL}
-          toggleModal={toggleModal}
-        />
+        <ImageGallery images={imgHits} onImageClick={getlargeImgURL} />
       )}
 
       {totalHits > imgHits.length && !loading && (
         <Button onClick={onloadMore} />
       )}
 
-      {showModal && (
-        <Modal onClose={toggleModal}>
+      {modalData && (
+        <Modal onClose={getlargeImgURL}>
           <ImageModal
-            src={largeImgURL}
-            alt={largeTags}
+            src={modalData.src}
+            alt={modalData.alt}
             title="Press Esc to exit"
           />
         </Modal>

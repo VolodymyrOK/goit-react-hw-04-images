@@ -2,17 +2,13 @@ import PropTypes from 'prop-types';
 import { ImageGalleryLi, ImageGalleryUl } from './ImageGallery.styled';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = ({ props, getLargeImgUrl, toggleModal }) => {
+export const ImageGallery = ({ images, onImageClick }) => {
   return (
     <>
       <ImageGalleryUl>
-        {props.map(item => (
+        {images.map(item => (
           <ImageGalleryLi key={item.id}>
-            <ImageGalleryItem
-              item={item}
-              getLargeImgUrl={getLargeImgUrl}
-              toggleModal={toggleModal}
-            />
+            <ImageGalleryItem item={item} onImageClick={onImageClick} />
           </ImageGalleryLi>
         ))}
       </ImageGalleryUl>
@@ -21,7 +17,10 @@ export const ImageGallery = ({ props, getLargeImgUrl, toggleModal }) => {
 };
 
 ImageGallery.propTypes = {
-  props: PropTypes.array,
-  getLargeImgUrl: PropTypes.func,
-  toggleModal: PropTypes.func,
+  images: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+    })
+  ),
+  onImageClick: PropTypes.func,
 };
